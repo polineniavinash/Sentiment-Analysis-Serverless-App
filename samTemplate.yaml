@@ -4,42 +4,42 @@ Description: >
   sam-app Custom SAM Template for sam-app
 
 Resources:
-  SharedLayer: 
-    Type: AWS::Serverless::LayerVersion 
-    Properties: 
-      LayerName: shared-layer 
+  SharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: shared-layer
       ContentUri: dependencies/
-      CompatibleRuntimes: 
+      CompatibleRuntimes:
         - python3.6
-        
+
   NewsTable:
     Type: AWS::DynamoDB::Table
-    Properties: 
-      AttributeDefinitions: 
-        - AttributeName: sentiment 
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: sentiment
           AttributeType: S
-        - AttributeName: timestamp 
+        - AttributeName: timestamp
           AttributeType: S
       TableName: "Sentimented_News_Table"
-      KeySchema: 
-        - AttributeName: sentiment 
+      KeySchema:
+        - AttributeName: sentiment
           KeyType: HASH
-        - AttributeName: timestamp 
+        - AttributeName: timestamp
           KeyType: RANGE
-      ProvisionedThroughput: 
+      ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      
+
   Lambda1NewsCreator:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: Serverless-codes/
       Handler: lambda1_newscreater.lambda_handler
       Runtime: python3.6
-      Role: 'arn:aws:iam::330256686372:role/Custom_role_lambda1'
+      Role: 'arn:aws:iam:::role/Custom_role_lambda1'
       Timeout: 10
       FunctionName: "Lambda1NewsCreator"
-      Layers: 
+      Layers:
         - !Ref SharedLayer
       Events:
         Timer:
@@ -52,15 +52,12 @@ Resources:
       CodeUri: Serverless-codes/
       Handler: lambda2_newsreader.lambda_handler
       Runtime: python3.6
-      Role: 'arn:aws:iam::330256686372:role/Custom_role_lambda2'
+      Role: 'arn:aws:iam::33********72:role/Custom_role_lambda2'
       Timeout: 10
       FunctionName: "Lambda2NewsReader"
       Events:
         MyApi:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /newsreader/sentiment
             Method: POST
-  
- 
-
