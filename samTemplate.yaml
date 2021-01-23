@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-app Custom SAM Template for sam-app
+
+Resources:
+  SharedLayer: 
+    Type: AWS::Serverless::LayerVersion 
+    Properties: 
+      LayerName: shared-layer 
+      ContentUri: dependencies/
+      CompatibleRuntimes: 
+        - python3.6
+        
+  NewsTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: sentiment 
+          AttributeType: S
+        - AttributeName: timestamp 
+          AttributeType: S
+      TableName: "Sentimented_News_Table"
+      KeySchema: 
+        - AttributeName: sentiment 
+          KeyType: HASH
+        - AttributeName: timestamp 
+          KeyType: RANGE
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      
+  Lambda1NewsCreator:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: Serverless-codes/
+      Handler: lambda1_newscreater.lambda_handler
+      Runtime: python3.6
+      Role: 'arn:aws:iam::330256686372:role/Custom_role_lambda1'
+      Timeout: 10
+      FunctionName: "Lambda1NewsCreator"
+      Layers: 
+        - !Ref SharedLayer
+      Events:
+        Timer:
+          Type: Schedule
+          Properties:
+            Schedule: rate(2 minutes)
+  Lambda2NewsReader:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Serverless-codes/
+      Handler: lambda2_newsreader.lambda_handler
+      Runtime: python3.6
+      Role: 'arn:aws:iam::330256686372:role/Custom_role_lambda2'
+      Timeout: 10
+      FunctionName: "Lambda2NewsReader"
+      Events:
+        MyApi:
+          Type: Api 
+          Properties:
+            Path: /newsreader/sentiment
+            Method: POST
+  
+ 
+
